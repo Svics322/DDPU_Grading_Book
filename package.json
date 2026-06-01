@@ -1,0 +1,45 @@
+{
+  "name": "ddpu-cloud-spa",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:local": "vite --host 127.0.0.1 --port 5177",
+    "build": "vite build",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "preview": "vite preview",
+    "preview:local": "vite preview --host 127.0.0.1 --port 4177",
+    "seed:supabase": "node scripts/seed-users.mjs"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.12.0",
+    "@supabase/supabase-js": "^2.106.2",
+    "final-form": "^5.0.1",
+    "final-form-arrays": "^4.0.1",
+    "jwt-decode": "^4.0.0",
+    "lucide-react": "^1.17.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-final-form": "^7.0.1",
+    "react-final-form-arrays": "^5.0.0",
+    "react-redux": "^9.3.0",
+    "react-router-dom": "^7.16.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "jsdom": "^29.1.1",
+    "vite": "^8.0.12",
+    "vitest": "^4.1.7"
+  }
+}

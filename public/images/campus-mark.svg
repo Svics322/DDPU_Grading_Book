@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Campus mark">
+  <rect width="80" height="80" rx="16" fill="#e8f3ee"/>
+  <path d="M15 36 40 20l25 16v6H15v-6Z" fill="#2f7668"/>
+  <path d="M20 44h8v18h-8V44Zm16 0h8v18h-8V44Zm16 0h8v18h-8V44Z" fill="#12231f"/>
+  <path d="M16 64h48" stroke="#2f7668" stroke-width="5" stroke-linecap="round"/>
+</svg>

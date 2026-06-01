@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Campus">
+  <rect width="640" height="360" rx="24" fill="#e8f3ee"/>
+  <path d="M62 279h516" stroke="#9cb7af" stroke-width="8" stroke-linecap="round"/>
+  <path d="M128 154 320 62l192 92v25H128v-25Z" fill="#2f7668"/>
+  <path d="M155 181h330v98H155z" fill="#ffffff"/>
+  <path d="M185 205h44v74h-44zm75 0h44v74h-44zm75 0h44v74h-44zm75 0h44v74h-44z" fill="#12231f"/>
+  <path d="M110 286h420" stroke="#2f7668" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="502" cy="91" r="28" fill="#f5b451"/>
+  <path d="M95 104h72M468 254h65M91 235h32" stroke="#8aa69e" stroke-width="8" stroke-linecap="round"/>
+</svg>
