@@ -20,6 +20,8 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 supabase functions deploy admin-create-user
 ```
 
+У `supabase/config.toml` для цієї function встановлено `verify_jwt = false`, щоб CORS preflight `OPTIONS` не блокувався gateway-перевіркою JWT. Перевірка адміністратора виконується всередині function.
+
 8. Для Edge Function додай secret:
 
 ```text
@@ -50,6 +52,8 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 ```bash
 supabase functions deploy admin-create-user
 ```
+
+У `supabase/config.toml` для цієї function встановлено `verify_jwt = false`, щоб CORS preflight `OPTIONS` не блокувався gateway-перевіркою JWT. Перевірка адміністратора виконується всередині function.
 
 7. Для Edge Function додай secret:
 

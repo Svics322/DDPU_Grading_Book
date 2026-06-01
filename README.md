@@ -138,6 +138,8 @@ npm run seed:supabase
 supabase functions deploy admin-create-user
 ```
 
+У `supabase/config.toml` для `admin-create-user` встановлено `verify_jwt = false`, щоб браузерний CORS preflight `OPTIONS` доходив до function. Сама function все одно перевіряє JWT поточного користувача і дозволяє створення акаунтів тільки адміністратору.
+
 У Supabase Functions має бути доступний secret `SUPABASE_SERVICE_ROLE_KEY`:
 
 ```bash
