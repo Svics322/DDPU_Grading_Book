@@ -12,27 +12,10 @@
 ```text
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-7. У Supabase задеплой Edge Function для створення акаунтів з адмінки:
-
-```bash
-supabase functions deploy admin-create-user
-```
-
-У `supabase/config.toml` для цієї function встановлено `verify_jwt = false`, щоб CORS preflight `OPTIONS` не блокувався gateway-перевіркою JWT. Перевірка адміністратора виконується всередині function.
-
-8. Для Edge Function додай secret:
-
-```text
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-Його можна встановити командою:
-
-```bash
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-```
+`SUPABASE_SERVICE_ROLE_KEY` використовується тільки у Vercel API route `api/admin-create-user.js` для створення акаунтів студентів і викладачів з адмінки.
 
 ## Netlify
 
@@ -45,26 +28,6 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```text
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-6. У Supabase задеплой Edge Function:
-
-```bash
-supabase functions deploy admin-create-user
-```
-
-У `supabase/config.toml` для цієї function встановлено `verify_jwt = false`, щоб CORS preflight `OPTIONS` не блокувався gateway-перевіркою JWT. Перевірка адміністратора виконується всередині function.
-
-7. Для Edge Function додай secret:
-
-```text
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-```
-
-Його можна встановити командою:
-
-```bash
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
 Файл `netlify.toml` містить redirect на `index.html`, тому прямі переходи на сторінки SPA працюють після перезавантаження.

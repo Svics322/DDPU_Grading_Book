@@ -66,6 +66,26 @@ function enrichSession(profile, token) {
   };
 }
 
+async function createAccountViaVercelApi(account) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+  if (!token) throw new Error("Потрібна авторизація адміністратора.");
+
+  const response = await fetch("/api/admin-create-user", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(account),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.message || "Не вдалося створити обліковий запис.");
+  }
+  return data;
+}
+
 export const repository = {
   mode: isSupabaseConfigured ? "supabase" : "demo",
 
@@ -152,10 +172,7 @@ export const repository = {
 
   async createWithAccount(resource, values, account) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.functions.invoke("admin-create-user", {
-        body: account,
-      });
-      if (error) throw new Error(error.message);
+      const data = await createAccountViaVercelApi(account);
       if (!data?.profile?.id) throw new Error("Не вдалося створити профіль користувача.");
 
       const row = await this.create(resource, {

@@ -22,7 +22,7 @@ React SPA для ведення журналу успішності ДДПУ: с
 - Кастомні випадаючі списки із пошуком для зв'язаних таблиць.
 - JavaScript-валідація форм без використання HTML `required`.
 - Підтвердження перед видаленням записів.
-- Створення облікового запису студента або викладача одразу з форми адміністратора.
+- Створення облікового запису студента або викладача одразу з форми адміністратора через Vercel API route.
 - Demo-режим із локальними seed-даними, якщо `.env` не налаштовано.
 
 ## Можливості ролей
@@ -132,21 +132,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 npm run seed:supabase
 ```
 
-6. Задеплой Edge Function для створення нових акаунтів з адмінки:
-
-```bash
-supabase functions deploy admin-create-user
-```
-
-У `supabase/config.toml` для `admin-create-user` встановлено `verify_jwt = false`, щоб браузерний CORS preflight `OPTIONS` доходив до function. Сама function все одно перевіряє JWT поточного користувача і дозволяє створення акаунтів тільки адміністратору.
-
-У Supabase Functions має бути доступний secret `SUPABASE_SERVICE_ROLE_KEY`:
-
-```bash
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-```
-
-Цей ключ використовується тільки на серверному боці Edge Function і не повинен потрапляти у Vite-змінні браузера.
+6. Для production-деплою на Vercel додай server-side змінну `SUPABASE_SERVICE_ROLE_KEY`. Вона потрібна route `api/admin-create-user.js` для створення Auth-користувачів з адмінки.
 
 ## Тестові акаунти
 
@@ -180,11 +166,13 @@ VITE_SUPABASE_URL
 VITE_SUPABASE_ANON_KEY
 ```
 
-Окремо в Supabase Functions потрібно зберегти server-side secret:
+Для Vercel також потрібно додати server-side environment variable:
 
 ```text
 SUPABASE_SERVICE_ROLE_KEY
 ```
+
+Цей ключ використовується тільки у Vercel API route `api/admin-create-user.js` і не потрапляє у клієнтський JavaScript.
 
 Команда збірки:
 
