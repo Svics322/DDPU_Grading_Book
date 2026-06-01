@@ -3,7 +3,7 @@ import { labelFor } from "../lib/formatters";
 import { paginateRows } from "../lib/pagination";
 import { canAccessRoute, canManageResource } from "../lib/rbac";
 import { resourceCreatePath, resourceEditPath, resourceListPath } from "../lib/resourcePaths";
-import { validateEntity } from "../lib/validation";
+import { normalizeEntityValues, validateEntity } from "../lib/validation";
 
 describe("validation", () => {
   it("requires a full student form and validates email", () => {
@@ -33,6 +33,32 @@ describe("validation", () => {
 
     expect(result.valid).toBe(true);
     expect(result.errors).toEqual({});
+  });
+
+  it("requires an account password when admin creates a student account", () => {
+    const result = validateEntity("students", {
+      FullName: "Новий Студент",
+      Email: "student.new@ddpu.edu.ua",
+      DepartmentID: 1,
+      GroupID: 1,
+      FormID: 1,
+    }, { requireAccountPassword: true });
+
+    expect(result.valid).toBe(false);
+    expect(result.errors.AccountPassword).toContain("пароль");
+  });
+
+  it("keeps account passwords out of database table values", () => {
+    const values = normalizeEntityValues("students", {
+      FullName: "Новий Студент",
+      Email: "student.new@ddpu.edu.ua",
+      DepartmentID: 1,
+      GroupID: 1,
+      FormID: 1,
+      AccountPassword: "Student2026!",
+    });
+
+    expect(values).not.toHaveProperty("AccountPassword");
   });
 });
 

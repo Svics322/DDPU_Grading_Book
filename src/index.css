@@ -617,6 +617,18 @@ th {
   gap: 16px;
 }
 
+.account-section {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.account-section h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  color: var(--text);
+}
+
 .check-field {
   display: flex;
   align-items: center;

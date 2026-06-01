@@ -1,5 +1,5 @@
 import { Field, Form } from "react-final-form";
-import { finalFormValidate } from "../lib/validation";
+import { ACCOUNT_PASSWORD_FIELD, finalFormValidate } from "../lib/validation";
 import { ROLE_LABELS, resources } from "../lib/schema";
 import { labelFor } from "../lib/formatters";
 import { CustomSelect } from "./CustomSelect";
@@ -36,18 +36,26 @@ function renderCheckbox({ input, label }) {
   );
 }
 
-export function EntityForm({ resource, initialValues, db, onSubmit, submitLabel }) {
+function shouldHideField(resource, name) {
+  return ["students", "teachers"].includes(resource) && name === "profile_id";
+}
+
+export function EntityForm({ resource, initialValues, db, onSubmit, submitLabel, requireAccountPassword = false }) {
   const config = resources[resource];
 
   return (
     <Form
       initialValues={initialValues}
-      validate={finalFormValidate(resource)}
+      validate={finalFormValidate(resource, { requireAccountPassword })}
       onSubmit={onSubmit}
       render={({ handleSubmit, submitting, submitError }) => (
         <form className="entity-form" onSubmit={handleSubmit} noValidate>
           <div className="form-grid">
             {Object.entries(config.fields).map(([name, rule]) => {
+              if (shouldHideField(resource, name)) {
+                return null;
+              }
+
               if (rule.ref) {
                 const options = (db[rule.ref] || []).map((row) => ({
                   value: row[resources[rule.ref].pk],
@@ -71,6 +79,14 @@ export function EntityForm({ resource, initialValues, db, onSubmit, submitLabel 
               return <Field key={name} name={name} label={rule.label} type={inputType} component={renderInput} />;
             })}
           </div>
+          {requireAccountPassword && (
+            <section className="account-section">
+              <h2>Обліковий запис</h2>
+              <div className="form-grid">
+                <Field name={ACCOUNT_PASSWORD_FIELD} label="Пароль облікового запису" type="password" component={renderInput} />
+              </div>
+            </section>
+          )}
           {submitError && <p className="form-error">{submitError}</p>}
           <div className="form-actions">
             <button type="submit" className="button primary" disabled={submitting}>{submitLabel}</button>

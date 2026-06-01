@@ -5,6 +5,13 @@ import { isSupabaseConfigured, supabase } from "./supabaseClient";
 
 const DB_KEY = "ddpu_cloud_demo_db";
 const SESSION_KEY = "ddpu_cloud_demo_session";
+const DEMO_ACCOUNTS_KEY = "ddpu_cloud_demo_accounts";
+
+const accountAvatarByRole = {
+  student: "/images/avatar-student.svg",
+  teacher: "/images/avatar-teacher.svg",
+  admin: "/images/avatar-admin.svg",
+};
 
 function readDemoDb() {
   const raw = localStorage.getItem(DB_KEY);
@@ -16,6 +23,17 @@ function readDemoDb() {
 
 function writeDemoDb(db) {
   localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+function readDemoAccounts() {
+  const raw = localStorage.getItem(DEMO_ACCOUNTS_KEY);
+  if (raw) return JSON.parse(raw);
+  localStorage.setItem(DEMO_ACCOUNTS_KEY, JSON.stringify(demoAccounts));
+  return [...demoAccounts];
+}
+
+function writeDemoAccounts(accounts) {
+  localStorage.setItem(DEMO_ACCOUNTS_KEY, JSON.stringify(accounts));
 }
 
 function base64Url(value) {
@@ -59,7 +77,7 @@ export const repository = {
       return enrichSession(profile, data.session.access_token);
     }
 
-    const account = demoAccounts.find((item) => item.email === email && item.password === password);
+    const account = readDemoAccounts().find((item) => item.email === email && item.password === password);
     if (!account) throw new Error("Невірна електронна пошта або пароль.");
     const profile = readDemoDb().profiles.find((item) => item.id === account.profileId);
     const session = enrichSession(profile, createDemoJwt(profile));
@@ -130,6 +148,60 @@ export const repository = {
     db[resource] = rows;
     writeDemoDb(db);
     return row;
+  },
+
+  async createWithAccount(resource, values, account) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.functions.invoke("admin-create-user", {
+        body: account,
+      });
+      if (error) throw new Error(error.message);
+      if (!data?.profile?.id) throw new Error("Не вдалося створити профіль користувача.");
+
+      const row = await this.create(resource, {
+        ...values,
+        profile_id: data.profile.id,
+        Email: data.profile.email,
+      });
+      return { row, profile: data.profile };
+    }
+
+    const db = readDemoDb();
+    const accounts = readDemoAccounts();
+    if (accounts.some((item) => item.email.toLowerCase() === account.email.toLowerCase())) {
+      throw new Error("Користувач із такою електронною поштою вже існує.");
+    }
+
+    const profile = {
+      id: crypto.randomUUID(),
+      full_name: account.full_name,
+      email: account.email,
+      role: account.role,
+      phone: account.phone || null,
+      avatar_url: accountAvatarByRole[account.role] || "",
+    };
+    db.profiles.push(profile);
+    accounts.push({
+      email: account.email,
+      password: account.password,
+      role: account.role,
+      profileId: profile.id,
+    });
+
+    const pk = getPk(resource);
+    const rows = db[resource] || [];
+    const nextId = Math.max(0, ...rows.map((item) => Number(item[pk]) || 0)) + 1;
+    const row = {
+      [pk]: nextId,
+      ...values,
+      profile_id: profile.id,
+      Email: profile.email,
+    };
+    rows.push(row);
+    db[resource] = rows;
+    writeDemoDb(db);
+    writeDemoAccounts(accounts);
+    return { row, profile };
   },
 
   async update(resource, id, values) {

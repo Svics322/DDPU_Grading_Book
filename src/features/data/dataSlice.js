@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { repository } from "../../lib/repository";
-import { normalizeEntityValues } from "../../lib/validation";
+import { ACCOUNT_PASSWORD_FIELD, normalizeEntityValues } from "../../lib/validation";
 import { RESOURCE_ORDER } from "../../lib/schema";
 
 export const loadResource = createAsyncThunk("data/loadResource", async (resource) => {
@@ -13,10 +13,30 @@ export const loadCoreData = createAsyncThunk("data/loadCoreData", async () => {
   return Object.fromEntries(entries);
 });
 
+function accountRoleForResource(resource) {
+  if (resource === "students") return "student";
+  if (resource === "teachers") return "teacher";
+  return null;
+}
+
 export const saveEntity = createAsyncThunk("data/saveEntity", async ({ resource, id, values, pk }) => {
+  const accountRole = !id ? accountRoleForResource(resource) : null;
+  const account = accountRole && values?.[ACCOUNT_PASSWORD_FIELD]
+    ? {
+        email: values.Email,
+        password: values[ACCOUNT_PASSWORD_FIELD],
+        role: accountRole,
+        full_name: values.FullName,
+        phone: values.Phone || null,
+      }
+    : null;
   const normalized = normalizeEntityValues(resource, values);
-  const row = id ? await repository.update(resource, id, normalized) : await repository.create(resource, normalized);
-  return { resource, row, pk };
+  const result = id
+    ? { row: await repository.update(resource, id, normalized) }
+    : account
+      ? await repository.createWithAccount(resource, normalized, account)
+      : { row: await repository.create(resource, normalized) };
+  return { resource, row: result.row, profile: result.profile, pk };
 });
 
 export const deleteEntity = createAsyncThunk("data/deleteEntity", async ({ resource, id, pk }) => {
@@ -53,11 +73,16 @@ const dataSlice = createSlice({
         state.tables = { ...state.tables, ...action.payload };
       })
       .addCase(saveEntity.fulfilled, (state, action) => {
-        const { resource, row, pk } = action.payload;
+        const { resource, row, profile, pk } = action.payload;
         const rows = state.tables[resource] || [];
         const index = rows.findIndex((item) => String(item[pk]) === String(row[pk]));
         if (index >= 0) rows[index] = row;
         else rows.push(row);
+        if (profile) {
+          const profileIndex = state.tables.profiles.findIndex((item) => String(item.id) === String(profile.id));
+          if (profileIndex >= 0) state.tables.profiles[profileIndex] = profile;
+          else state.tables.profiles.push(profile);
+        }
       })
       .addCase(deleteEntity.fulfilled, (state, action) => {
         const { resource, id, pk } = action.payload;

@@ -24,6 +24,7 @@ export function ResourceFormPage({ fixedResource, returnPath }) {
   const pk = getPk(resource);
   const existing = id ? db[resource]?.find((item) => String(item[pk]) === String(id)) : null;
   const title = id ? `Редагування: ${config.title}` : `Створення: ${config.title}`;
+  const requireAccountPassword = !id && user?.role === "admin" && ["students", "teachers"].includes(resource);
   const currentTeacher = resource === "success_rate" && user?.role === "teacher"
     ? db.teachers?.find((teacher) => teacher.profile_id === user.id)
     : null;
@@ -69,6 +70,7 @@ export function ResourceFormPage({ fixedResource, returnPath }) {
         db={formDb}
         onSubmit={handleSubmit}
         submitLabel={id ? "Зберегти зміни" : "Створити запис"}
+        requireAccountPassword={requireAccountPassword}
       />
     </div>
   );

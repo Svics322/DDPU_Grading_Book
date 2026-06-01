@@ -3,8 +3,9 @@ import { resources } from "./schema";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[+()\-\s0-9]{7,20}$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export const ACCOUNT_PASSWORD_FIELD = "AccountPassword";
 
-export function validateEntity(resource, values) {
+export function validateEntity(resource, values, options = {}) {
   const config = resources[resource];
   const errors = {};
 
@@ -58,17 +59,30 @@ export function validateEntity(resource, values) {
     }
   });
 
+  if (options.requireAccountPassword) {
+    const email = values?.Email;
+    const password = values?.[ACCOUNT_PASSWORD_FIELD];
+    if (email === undefined || email === null || String(email).trim() === "") {
+      errors.Email = "Введіть електронну пошту для облікового запису.";
+    }
+    if (password === undefined || password === null || String(password).trim() === "") {
+      errors[ACCOUNT_PASSWORD_FIELD] = "Введіть пароль облікового запису.";
+    } else if (String(password).length < 8) {
+      errors[ACCOUNT_PASSWORD_FIELD] = "Пароль має містити не менше 8 символів.";
+    }
+  }
+
   return { valid: Object.keys(errors).length === 0, errors };
 }
 
-export function finalFormValidate(resource) {
-  return (values) => validateEntity(resource, values).errors;
+export function finalFormValidate(resource, options = {}) {
+  return (values) => validateEntity(resource, values, options).errors;
 }
 
 export function normalizeEntityValues(resource, values) {
   const config = resources[resource];
   return Object.fromEntries(
-    Object.entries(values).map(([key, value]) => {
+    Object.entries(values).filter(([key]) => config?.fields?.[key]).map(([key, value]) => {
       const type = config?.fields?.[key]?.type;
       if (value === "") return [key, null];
       if (["int", "year"].includes(type)) return [key, Number(value)];
